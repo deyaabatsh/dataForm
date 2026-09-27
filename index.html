@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نموذج تسجيل بيانات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green:  #1a3d6b; --green-l: #2563ab; --green-p: #e8f0fa;
+  --purple: #6b2d8b; --purple-l:#8b3dab; --purple-p:#f5eafa;
+  --dark: #1a1a1a; --gray: #6b7280; --gray-l: #f3f4f6;
+  --white: #fff; --border: #d1d5db; --error: #dc2626;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:'Cairo',sans-serif;
+  background: linear-gradient(160deg,#f0f3f7,#eef3fa,#f5f0fb);
+  min-height:100vh; color:var(--dark); padding:28px 14px;
+}
+.page-header { text-align:center; margin-bottom:36px; }
+.logos { display:flex; align-items:center; justify-content:center; gap:28px; margin-bottom:10px; }
+.logos img { height:150px; width:auto; object-fit:contain; }
+.logos .sep { width:1.5px; height:110px; background:var(--border); }
+h1 { font-size:26px; font-weight:900; color:var(--green); margin-bottom:4px; }
+.subtitle { font-size:13px; color:var(--gray); }
+.divider { width:80px; height:3px; background:linear-gradient(90deg,var(--green),#c9a227);
+  border-radius:2px; margin:12px auto 0; }
+
+form { max-width:900px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
+
+.card { background:var(--white); border-radius:18px; overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,.07); border:1px solid rgba(0,0,0,.06); }
+.card-head { padding:14px 24px; display:flex; align-items:center; gap:10px; color:#fff; }
+.card-head .ico { font-size:20px; }
+.card-head .ttl { font-size:16px; font-weight:700; }
+.card-body { padding:22px 24px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.card-body.cols3 { grid-template-columns:1fr 1fr 1fr; }
+
+.c-green  .card-head { background:linear-gradient(135deg,var(--green),var(--green-l)); }
+.c-purple .card-head { background:linear-gradient(135deg,var(--purple),var(--purple-l)); }
+
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fg.full { grid-column:1/-1; }
+label { font-size:12.5px; font-weight:700; color:var(--dark); display:flex; align-items:center; gap:5px; }
+.req { color:var(--error); font-size:14px; }
+input,select,textarea {
+  width:100%; padding:10px 13px; border:1.5px solid var(--border);
+  border-radius:9px; font-family:'Cairo',sans-serif; font-size:13.5px;
+  color:var(--dark); background:var(--gray-l); transition:all .2s; outline:none;
+}
+input:focus,select:focus,textarea:focus {
+  border-color:#60a5fa; background:#fff; box-shadow:0 0 0 3px rgba(96,165,250,.15);
+}
+input.err,select.err,textarea.err { border-color:var(--error); background:#fff5f5; }
+.hint { font-size:11px; color:var(--gray); }
+.emsg { font-size:11.5px; color:var(--error); font-weight:700; display:none; }
+.emsg.show { display:block; }
+.sub-label { font-weight:500; font-size:11.5px; color:var(--gray); }
+.name-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
+
+.submit-wrap { text-align:center; padding-bottom:8px; }
+.btn {
+  background:linear-gradient(135deg,var(--green),var(--green-l));
+  color:#fff; border:none; padding:15px 52px; font-size:16px; font-weight:700;
+  font-family:'Cairo',sans-serif; border-radius:50px; cursor:pointer;
+  box-shadow:0 6px 24px rgba(26,61,107,.35); transition:all .25s;
+}
+.btn:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(26,61,107,.42); }
+.btn:disabled { opacity:.65; cursor:not-allowed; transform:none; }
+.btn .spin { display:none; width:16px; height:16px; border:3px solid rgba(255,255,255,.4);
+  border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite;
+  vertical-align:middle; margin-left:8px; }
+.btn.loading .spin { display:inline-block; }
+@keyframes sp { to { transform:rotate(360deg); } }
+
+.toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-130px);
+  padding:14px 26px; border-radius:12px; font-size:14px; font-weight:700;
+  font-family:'Cairo',sans-serif; z-index:9999; transition:transform .4s cubic-bezier(.175,.885,.32,1.275);
+  box-shadow:0 8px 28px rgba(0,0,0,.2); max-width:90vw; text-align:center;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.ok { background:var(--green); color:#fff; }
+.toast.fail { background:var(--error); color:#fff; }
+
+.note { background:#fffbeb; border:1px solid #fcd34d; border-radius:10px;
+  padding:12px 18px; font-size:12.5px; color:#92400e;
+  max-width:900px; margin:0 auto 24px; }
+
+.upload-wrap {
+  position:relative; border:2px dashed var(--border); border-radius:9px;
+  padding:18px 12px; text-align:center; background:var(--gray-l);
+  cursor:pointer; transition:border-color .15s,background .15s; overflow:hidden;
+}
+.upload-wrap:hover { border-color:#2563ab; background:#e8f0fa; }
+.upload-wrap.has-file { border-color:#2a7a5a; background:#edf7f2; }
+.upload-wrap.err { border-color:var(--error); background:#fff5f5; }
+.upload-wrap input[type=file] {
+  position:absolute; inset:0; opacity:0; cursor:pointer;
+  width:100%; height:100%; border:none; background:none; box-shadow:none; padding:0;
+}
+.upload-icon { font-size:26px; margin-bottom:5px; display:block; }
+.upload-text { font-size:12.5px; color:var(--dark); font-weight:600; }
+.upload-hint { font-size:11px; color:var(--gray); margin-top:3px; }
+.file-preview { font-size:12px; color:#2a7a5a; font-weight:600; margin-top:6px; display:none; word-break:break-all; }
+
+/* ── شاشة فحص الهوية ── */
+#check-screen {
+  position:fixed; inset:0; z-index:700; overflow-y:auto;
+  background:linear-gradient(160deg,#f0f3f7,#eef3fa,#f5f0fb);
+  display:flex; align-items:center; justify-content:center; padding:2rem 14px;
+}
+.check-card {
+  background:#fff; border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,.12);
+  padding:2rem 2rem 2.2rem; max-width:440px; width:100%;
+  text-align:center;
+  border-top:5px solid var(--green);
+  margin:auto;
+}
+.check-card .logos { margin-bottom:14px; }
+.check-card .logos img { height:100px; }
+.check-card .logos .sep { height:72px; }
+.check-card h2 { font-size:20px; font-weight:900; color:var(--green); margin-bottom:6px; }
+.check-card p  { font-size:13px; color:var(--gray); margin-bottom:22px; }
+.check-card .spin { display:none; width:14px; height:14px; border:2px solid rgba(255,255,255,.4);
+  border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite;
+  vertical-align:middle; margin-left:6px; }
+.check-btn-new .spin { border-color:rgba(55,65,81,.3); border-top-color:#374151; }
+.check-found {
+  background:#fff7ed; border:1px solid #fb923c; border-radius:12px;
+  padding:14px 16px; text-align:right;
+}
+.check-found .cf-title { font-size:14px; font-weight:700; color:#c2410c; margin-bottom:6px; }
+.check-found .cf-name  { font-size:15px; font-weight:900; color:var(--dark); }
+.check-missing {
+  background:#fff1f2; border:1px solid #fca5a5; border-radius:10px;
+  padding:12px; font-size:13px; font-weight:700; color:#b91c1c;
+}
+.check-btn-edit {
+  flex:1; background:linear-gradient(135deg,var(--green),var(--green-l));
+  color:#fff; border:none; padding:13px; border-radius:50px;
+  font-family:'Cairo',sans-serif; font-size:14px; font-weight:700; cursor:pointer;
+}
+.check-btn-new {
+  flex:1; background:#f3f4f6; color:#374151; border:1px solid var(--border);
+  padding:13px; border-radius:50px;
+  font-family:'Cairo',sans-serif; font-size:14px; font-weight:700; cursor:pointer;
+}
+.check-btn-edit:disabled,.check-btn-new:disabled { opacity:.65; cursor:not-allowed; }
+.mode-banner {
+  max-width:900px; margin:0 auto 24px; background:#eff6ff; border:1px solid #93c5fd;
+  border-radius:10px; padding:12px 18px; font-size:13px; font-weight:700; color:#1d4e89;
+  display:none;
+}
+.file-preview a { color:#2563ab; }
+input[readonly] { background:#e5e7eb; color:var(--gray); cursor:not-allowed; }
+
+#success-screen {
+  display:none; position:fixed; inset:0;
+  background:linear-gradient(160deg,#f0f3f7,#eef3fa,#f5f0fb);
+  z-index:500; align-items:center; justify-content:center; padding:2rem;
+}
+#success-screen.visible { display:flex; }
+.success-card {
+  background:#fff; border-radius:20px;
+  box-shadow:0 8px 32px rgba(0,0,0,.12);
+  padding:3rem 2.5rem; text-align:center;
+  max-width:420px; width:100%;
+  border-top:5px solid #2a7a5a;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes popIn {
+  from { opacity:0; transform:scale(.85) translateY(20px); }
+  to { opacity:1; transform:scale(1) translateY(0); }
+}
+.success-icon { font-size:64px; margin-bottom:16px; }
+.success-title { font-size:22px; font-weight:900; color:#2a7a5a; margin-bottom:10px; }
+.success-subtitle { font-size:14px; color:#6b7280; margin-bottom:28px; }
+.new-form-btn {
+  background:linear-gradient(135deg,var(--green),var(--green-l));
+  color:#fff; border:none; padding:14px 40px;
+  font-size:15px; font-weight:700;
+  font-family:'Cairo',sans-serif; border-radius:50px;
+  cursor:pointer; width:100%;
+  box-shadow:0 4px 16px rgba(26,61,107,.25);
+  transition:all .25s;
+}
+.new-form-btn:hover { transform:translateY(-2px); }
+
+.consent-wrap {
+  background:#fff; border-radius:14px; padding:18px 22px;
+  border:2px solid var(--border); display:flex; align-items:flex-start; gap:12px;
+  cursor:pointer; transition:border-color .2s;
+}
+.consent-wrap:hover { border-color:#2563ab; }
+.consent-wrap.err-consent { border-color:var(--error); background:#fff5f5; }
+.consent-wrap input[type=checkbox] {
+  width:20px; height:20px; flex-shrink:0; margin-top:2px;
+  accent-color:#1a3d6b; cursor:pointer;
+  background:none; border:none; box-shadow:none; padding:0;
+}
+.consent-text { font-size:13px; font-weight:600; color:var(--dark); line-height:1.7; }
+.consent-err { font-size:12px; color:var(--error); font-weight:700; display:none; margin:-16px 34px 0 0; }
+.consent-err.show { display:block; }
+
+@media(max-width:640px){
+  .card-body,.card-body.cols3 { grid-template-columns:1fr; }
+  .name-grid { grid-template-columns:1fr 1fr; }
+  .logos { gap:16px; }
+  .logos img { height:110px; }
+  .logos .sep { height:80px; }
+  h1 { font-size:20px; }
+  .btn { padding:13px 32px; font-size:14px; }
+}
+</style>
+</head>
+<body>
+<div id="success-screen">
+  <div class="success-card">
+    <div class="success-icon">✅</div>
+    <div class="success-title" id="success-title">تم إرسال البيانات بنجاح!</div>
+    <div class="success-subtitle">شكراً، تم استلام بياناتك ومرفقاتك وسيتم مراجعتها.</div>
+    <button class="new-form-btn" onclick="resetForm()">📝 إرسال رد آخر</button>
+  </div>
+</div>
+
+<!-- ══════════ شاشة فحص الهوية ══════════ -->
+<div id="check-screen">
+  <div class="check-card">
+    <div class="logos">
+      <img src="logo-ptsd.png" alt="جمعية فلسطين الغد للتنمية المجتمعية">
+      <span class="sep"></span>
+      <img src="logo.png" alt="تكية أم علي">
+    </div>
+    <h2>نموذج تسجيل بيانات</h2>
+    <p>أدخل رقم الهوية ثم اختر العملية</p>
+    <div class="fg" style="text-align:right;margin-bottom:18px">
+      <label>رقم الهوية <span class="req">*</span></label>
+      <input type="text" id="check-id-input" placeholder="9 أرقام" maxlength="9" inputmode="numeric"
+             oninput="this.value=this.value.replace(/\D/g,''); $('check-result').innerHTML=''">
+      <span class="emsg" id="check-id-err">⚠ يرجى إدخال 9 أرقام</span>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="check-btn-edit" id="btn-register" onclick="handleAction('new')">
+        <span class="spin"></span><span>📝 تسجيل جديد</span>
+      </button>
+      <button class="check-btn-new" id="btn-edit" onclick="handleAction('edit')">
+        <span class="spin"></span><span>✏️ تعديل البيانات</span>
+      </button>
+    </div>
+    <div id="check-result" style="margin-top:14px"></div>
+  </div>
+</div>
+
+<div class="page-header">
+  <div class="logos">
+    <img src="logo-ptsd.png" alt="جمعية فلسطين الغد للتنمية المجتمعية">
+    <span class="sep"></span>
+    <img src="logo.png" alt="تكية أم علي">
+  </div>
+  <h1>نموذج تسجيل بيانات</h1>
+  <div class="divider"></div>
+</div>
+
+<div class="note">⚠️ الحقول المعلّمة بـ <span style="color:red;font-weight:700">*</span> إلزامية. تحقق من البيانات قبل الإرسال.</div>
+<div class="mode-banner" id="mode-banner">✏️ وضع التعديل — المرفقات الحالية محفوظة، ارفع ملفاً جديداً فقط إذا أردت استبداله.</div>
+
+<form id="frm" novalidate>
+
+<!-- ════ 1: البيانات الشخصية ════ -->
+<div class="card c-green">
+  <div class="card-head"><span class="ico">👤</span><span class="ttl">البيانات الشخصية</span></div>
+  <div class="card-body">
+    <div class="fg full">
+      <label>الاسم الرباعي <span class="req">*</span></label>
+      <div class="name-grid">
+        <div class="fg">
+          <label class="sub-label">الاسم الأول</label>
+          <input type="text" id="الاسم_الأول" placeholder="الاسم الأول">
+        </div>
+        <div class="fg">
+          <label class="sub-label">اسم الأب</label>
+          <input type="text" id="الاسم_الثاني" placeholder="اسم الأب">
+        </div>
+        <div class="fg">
+          <label class="sub-label">اسم الجد</label>
+          <input type="text" id="الاسم_الثالث" placeholder="اسم الجد">
+        </div>
+        <div class="fg">
+          <label class="sub-label">اسم العائلة</label>
+          <input type="text" id="الاسم_الرابع" placeholder="اسم العائلة">
+        </div>
+      </div>
+      <span class="emsg" id="e_الاسم">⚠ يرجى إدخال الاسم الرباعي كاملاً</span>
+    </div>
+    <div class="fg">
+      <label>رقم الهوية <span class="req">*</span></label>
+      <input type="text" id="رقم_الهوية" placeholder="9 أرقام" maxlength="9" inputmode="numeric">
+      <span class="hint">9 خانات بالضبط</span>
+      <span class="emsg" id="e_رقم_الهوية">⚠ يجب أن يكون 9 أرقام</span>
+    </div>
+    <div class="fg">
+      <label>رقم الجوال <span class="req">*</span></label>
+      <input type="text" id="رقم_الجوال" placeholder="مثال: 0591234567" maxlength="10" inputmode="tel">
+      <span class="hint">10 خانات تبدأ بـ 05</span>
+      <span class="emsg" id="e_رقم_الجوال">⚠ يجب أن يكون 10 أرقام ويبدأ بـ 05</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 2: المرفقات ════ -->
+<div class="card c-purple">
+  <div class="card-head"><span class="ico">📎</span><span class="ttl">المرفقات</span></div>
+  <div class="card-body cols3">
+    <div class="fg">
+      <label>1. السيرة الذاتية <span class="req">*</span></label>
+      <div class="upload-wrap" id="wrap_cv">
+        <input type="file" accept=".pdf,.doc,.docx,image/*" onchange="handleFile(this,'cv')">
+        <span class="upload-icon">📄</span>
+        <div class="upload-text">اضغط لرفع السيرة الذاتية</div>
+        <div class="upload-hint">PDF, Word, صورة — حد أقصى 5MB</div>
+        <div class="file-preview" id="name_cv"></div>
+      </div>
+      <span class="emsg" id="e_cv">⚠ يرجى إرفاق السيرة الذاتية</span>
+    </div>
+    <div class="fg">
+      <label>2. الشهادة الجامعية <span class="req">*</span></label>
+      <div class="upload-wrap" id="wrap_degree">
+        <input type="file" accept=".pdf,image/*" onchange="handleFile(this,'degree')">
+        <span class="upload-icon">🎓</span>
+        <div class="upload-text">اضغط لرفع الشهادة الجامعية</div>
+        <div class="upload-hint">PDF, صورة — حد أقصى 5MB</div>
+        <div class="file-preview" id="name_degree"></div>
+      </div>
+      <span class="emsg" id="e_degree">⚠ يرجى إرفاق الشهادة الجامعية</span>
+    </div>
+    <div class="fg">
+      <label>3. صورة الهوية مع السليب <span class="req">*</span></label>
+      <div class="upload-wrap" id="wrap_idcard">
+        <input type="file" accept=".pdf,image/*" onchange="handleFile(this,'idcard')">
+        <span class="upload-icon">🪪</span>
+        <div class="upload-text">اضغط لرفع صورة الهوية مع السليب</div>
+        <div class="upload-hint">PDF, صورة — حد أقصى 5MB</div>
+        <div class="file-preview" id="name_idcard"></div>
+      </div>
+      <span class="emsg" id="e_idcard">⚠ يرجى إرفاق صورة الهوية مع السليب</span>
+    </div>
+  </div>
+</div>
+
+<div class="consent-wrap" id="consent-wrap" onclick="document.getElementById('consent-cb').click()">
+  <input type="checkbox" id="consent-cb" onclick="event.stopPropagation()">
+  <span class="consent-text">أقرّ بصحة جميع البيانات والمعلومات والوثائق المقدمة، وأوافق على مشاركتها مع الجهات المانحة أو الشركاء ذوي العلاقة.</span>
+</div>
+<div class="consent-err" id="consent-err">⚠ يجب الموافقة على الإقرار قبل الإرسال</div>
+
+<div class="submit-wrap">
+  <button type="submit" class="btn" id="sbtn">
+    <span class="spin"></span>
+    <span class="btxt">💾 حفظ البيانات</span>
+  </button>
+</div>
+
+</form>
+<div class="toast" id="toast"></div>
+
+<script>
+// ضع هنا رابط الـ Web App بعد نشر Code.gs
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRHgXu-m3swpouYWlWgL82IcTDZHEcownb5XRNESRhGenZHFO7iAmf0KoatObGPBUP/exec';
+
+const MAX_FILE_MB = 5;
+const NAME_IDS = ['الاسم_الأول','الاسم_الثاني','الاسم_الثالث','الاسم_الرابع'];
+const FILES = {
+  cv:     { key:'مرفق_السيرة_الذاتية',      label:'السيرة_الذاتية' },
+  degree: { key:'مرفق_الشهادة_الجامعية',    label:'الشهادة_الجامعية' },
+  idcard: { key:'مرفق_صورة_الهوية_والسليب', label:'الهوية_والسليب' }
+};
+const fileData = { cv:null, degree:null, idcard:null };
+
+const $ = id => document.getElementById(id);
+
+function setErr(id, show) {
+  $(id)?.classList.toggle('err', show);
+  $('e_' + id)?.classList.toggle('show', show);
+  return !show;
+}
+
+function validate() {
+  let ok = true;
+
+  let nameErr = false;
+  NAME_IDS.forEach(id => {
+    const bad = $(id).value.trim().length < 2;
+    $(id).classList.toggle('err', bad);
+    if (bad) nameErr = true;
+  });
+  $('e_الاسم').classList.toggle('show', nameErr);
+  if (nameErr) ok = false;
+
+  ok &= setErr('رقم_الهوية', !/^\d{9}$/.test($('رقم_الهوية').value.trim()));
+  ok &= setErr('رقم_الجوال', !/^05\d{8}$/.test($('رقم_الجوال').value.trim()));
+
+  Object.keys(FILES).forEach(k => {
+    const missing = !fileData[k];
+    $('wrap_' + k).classList.toggle('err', missing);
+    $('e_' + k).classList.toggle('show', missing);
+    if (missing) ok = false;
+  });
+
+  const cb = $('consent-cb');
+  $('consent-wrap').classList.toggle('err-consent', !cb.checked);
+  $('consent-err').classList.toggle('show', !cb.checked);
+  if (!cb.checked) ok = false;
+
+  return !!ok;
+}
+
+// حقول أرقام فقط
+['رقم_الهوية','رقم_الجوال']
+  .forEach(id => $(id).addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); }));
+
+function toast(msg, type) {
+  const t = $('toast');
+  t.textContent = (type==='ok'?'✅ ':'❌ ') + msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(()=>t.classList.remove('show'), 4500);
+}
+
+// الصور تُضغط قبل الإرسال، وباقي الملفات (PDF / Word) تُرسل كما هي
+function handleFile(input, kind) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > MAX_FILE_MB * 1024 * 1024) {
+    toast('حجم الملف أكبر من ' + MAX_FILE_MB + 'MB', 'fail');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    if (file.type.indexOf('image/') === 0) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const scale = Math.min(1, 1600 / img.width);
+        canvas.width  = img.width  * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        setFile(kind, file.name, canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => setFile(kind, file.name, e.target.result);
+      img.src = e.target.result;
+    } else {
+      setFile(kind, file.name, e.target.result);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function setFile(kind, name, dataUrl) {
+  fileData[kind] = { name, data: dataUrl };
+  const wrap = $('wrap_' + kind);
+  wrap.classList.add('has-file');
+  wrap.classList.remove('err');
+  $('e_' + kind).classList.remove('show');
+  const n = $('name_' + kind);
+  n.style.display = 'block';
+  n.textContent = '✔ ' + name;
+}
+
+$('frm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  if (!validate()) {
+    toast('يرجى تصحيح الأخطاء أولاً', 'fail');
+    document.querySelector('.err, .emsg.show')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  const btn = $('sbtn');
+  btn.disabled = true; btn.classList.add('loading');
+
+  const data = {};
+  NAME_IDS.forEach(id => data[id] = $(id).value.trim());
+  data['الاسم_الرباعي'] = NAME_IDS.map(id => data[id]).join(' ');
+  data['رقم_الهوية']  = $('رقم_الهوية').value.trim();
+  data['رقم_الجوال']  = $('رقم_الجوال').value.trim();
+  Object.keys(FILES).forEach(k => {
+    const f = fileData[k];
+    // في وضع التعديل: الملف الحالي يُرسل كرابط، والملف الجديد كـ base64
+    data[FILES[k].key] = f.link ? f.link : { name: f.name, label: FILES[k].label, data: f.data };
+  });
+  data['_edit_row'] = editRow;
+
+  try {
+    // بدون Content-Type مخصص حتى لا يحصل preflight، فنقدر نقرأ رد Apps Script
+    const res  = await fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(data) });
+    const json = await res.json();
+    if (json.status === 'ok') {
+      $('success-title').textContent = editRow ? 'تم تحديث البيانات بنجاح!' : 'تم إرسال البيانات بنجاح!';
+      $('success-screen').classList.add('visible');
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else if (json.status === 'duplicate') {
+      toast('رقم الهوية مسجّل مسبقاً', 'fail');
+      setErr('رقم_الهوية', true);
+    } else {
+      toast('حدث خطأ أثناء الحفظ، حاول مجدداً', 'fail');
+    }
+  } catch(err) {
+    toast('حدث خطأ في الاتصال، حاول مجدداً', 'fail');
+  }
+
+  btn.disabled = false; btn.classList.remove('loading');
+});
+
+function resetForm() {
+  $('success-screen').classList.remove('visible');
+  $('frm').reset();
+  document.querySelectorAll('.err').forEach(el => el.classList.remove('err'));
+  document.querySelectorAll('.emsg.show').forEach(el => el.classList.remove('show'));
+  Object.keys(FILES).forEach(k => {
+    fileData[k] = null;
+    $('wrap_' + k).classList.remove('has-file','err');
+    const n = $('name_' + k);
+    n.style.display = 'none'; n.textContent = '';
+  });
+  editRow = 0;
+  $('mode-banner').style.display = 'none';
+  $('رقم_الهوية').readOnly = false;
+  $('check-id-input').value = '';
+  $('check-result').innerHTML = '';
+  $('check-screen').style.display = 'flex';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ══════════ شاشة فحص الهوية ══════════
+let editRow = 0;
+
+async function handleAction(mode) {
+  const idVal = $('check-id-input').value.trim();
+  const errEl = $('check-id-err');
+  if (!/^\d{9}$/.test(idVal)) { errEl.classList.add('show'); return; }
+  errEl.classList.remove('show');
+
+  const btn  = $(mode === 'new' ? 'btn-register' : 'btn-edit');
+  const spin = btn.querySelector('.spin');
+  $('btn-register').disabled = $('btn-edit').disabled = true;
+  spin.style.display = 'inline-block';
+  $('check-result').innerHTML = '';
+
+  try {
+    const res  = await fetch(SCRIPT_URL + '?id=' + idVal);
+    const json = await res.json();
+    if (json.error && json.error !== 'no_id') throw new Error(json.error);
+
+    if (mode === 'new') {
+      if (json.found) {
+        $('check-result').innerHTML =
+          '<div class="check-found"><div class="cf-title">⚠️ رقم الهوية مسجّل مسبقاً</div><div class="cf-name"></div></div>';
+        $('check-result').querySelector('.cf-name').textContent = json.data['الاسم_الرباعي'] || '';
+      } else {
+        openForm(idVal);
+      }
+    } else {
+      if (json.found) {
+        openForm(idVal, json);
+      } else {
+        $('check-result').innerHTML = '<div class="check-missing">❌ رقم الهوية غير مسجّل في النظام</div>';
+      }
+    }
+  } catch(err) {
+    $('check-result').innerHTML = '<div class="check-missing">⚠️ تعذّر الاتصال، تحقق من الإنترنت</div>';
+  }
+
+  $('btn-register').disabled = $('btn-edit').disabled = false;
+  spin.style.display = 'none';
+}
+
+function openForm(idVal, existing) {
+  const idEl = $('رقم_الهوية');
+  idEl.value = idVal;
+  idEl.readOnly = true;
+
+  if (existing) {
+    editRow = existing.row;
+    const d = existing.data;
+    NAME_IDS.forEach(id => $(id).value = d[id] || '');
+    $('رقم_الجوال').value = d['رقم_الجوال'] || '';
+    Object.keys(FILES).forEach(k => {
+      const link = d[FILES[k].key];
+      if (!link) return;
+      fileData[k] = { link };
+      $('wrap_' + k).classList.add('has-file');
+      const n = $('name_' + k);
+      n.style.display = 'block';
+      n.innerHTML = '✔ الملف الحالي — <a target="_blank" rel="noopener" onclick="event.stopPropagation()">عرض</a>';
+      n.querySelector('a').href = link;
+    });
+    $('mode-banner').style.display = 'block';
+  }
+
+  $('check-screen').style.display = 'none';
+  window.scrollTo({top:0});
+}
+</script>
+</body>
+</html>
