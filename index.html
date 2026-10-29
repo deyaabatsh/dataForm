@@ -205,6 +205,27 @@ input[readonly] { background:#e5e7eb; color:var(--gray); cursor:not-allowed; }
 .consent-err { font-size:12px; color:var(--error); font-weight:700; display:none; margin:-16px 34px 0 0; }
 .consent-err.show { display:block; }
 
+/* ── مفاتيح نعم/لا ── */
+.toggle-row { display:flex; align-items:center; gap:10px; }
+.toggle-row input[type=checkbox] {
+  appearance:none; -webkit-appearance:none; width:46px; height:26px; padding:0;
+  border-radius:50px; border:none; background:#9ca3af; position:relative;
+  cursor:pointer; flex-shrink:0; box-shadow:none; transition:background .2s;
+}
+.toggle-row input[type=checkbox]::after {
+  content:''; position:absolute; top:3px; right:3px; width:20px; height:20px;
+  border-radius:50%; background:#fff; transition:transform .2s;
+}
+.toggle-row input[type=checkbox]:checked { background:var(--green-l); }
+.toggle-row input[type=checkbox]:checked::after { transform:translateX(-20px); }
+.toggle-state {
+  min-width:42px; text-align:center; padding:2px 10px; border-radius:6px;
+  font-size:13px; font-weight:700; color:#fff; background:#9ca3af;
+}
+.toggle-state.on { background:var(--green-l); }
+.fin-sub { display:none; }
+.fin-sub.show { display:flex; }
+
 @media(max-width:640px){
   .card-body,.card-body.cols3 { grid-template-columns:1fr; }
   .name-grid { grid-template-columns:1fr 1fr; }
@@ -307,6 +328,102 @@ input[readonly] { background:#e5e7eb; color:var(--gray); cursor:not-allowed; }
       <span class="hint">10 خانات تبدأ بـ 05</span>
       <span class="emsg" id="e_رقم_الجوال">⚠ يجب أن يكون 10 أرقام ويبدأ بـ 05</span>
     </div>
+    <div class="fg">
+      <label>اسم المخيم <span class="req">*</span></label>
+      <select id="اسم_المخيم">
+        <option value="">اختر المخيم</option>
+        <option>مخيم السلطان</option>
+        <option>مخيم الكرامة</option>
+        <option>مخيم الصفطاوي</option>
+        <option>مخيم الإسراء</option>
+        <option>مخيم كنعان</option>
+        <option>مخيم فدا</option>
+        <option>مخيم الصياد</option>
+        <option>مخيم الصلاح-الجوازات</option>
+        <option>مخيم رعاية الأيتام</option>
+        <option>مدرسة فلسطين الغد - النصيرات</option>
+        <option>مدرسة نجوم المستقبل</option>
+        <option>مخيم أنصار - جيل الأمل</option>
+        <option>مخيم بسمة أمل</option>
+        <option>مخيم الأيتام</option>
+        <option>مخيم أم القرى</option>
+      </select>
+      <span class="emsg" id="e_اسم_المخيم">⚠ يرجى اختيار المخيم</span>
+    </div>
+    <div class="fg">
+      <label>التصنيف <span class="req">*</span></label>
+      <select id="التصنيف">
+        <option value="">اختر التصنيف</option>
+        <option>مدير</option>
+        <option>معلم</option>
+        <option>آذن</option>
+      </select>
+      <span class="emsg" id="e_التصنيف">⚠ يرجى اختيار التصنيف</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ البيانات المالية ════ -->
+<div class="card c-green">
+  <div class="card-head"><span class="ico">💳</span><span class="ttl">البيانات المالية</span></div>
+  <div class="card-body">
+    <div class="fg">
+      <label>يمتلك محفظة إلكترونية؟</label>
+      <div class="toggle-row">
+        <input type="checkbox" id="has_wallet" onchange="toggleFin('wallet')">
+        <span class="toggle-state" id="st_wallet">لا</span>
+      </div>
+    </div>
+    <div class="fin-sub" id="sub_wallet" style="grid-column:1/-1;gap:18px;flex-wrap:wrap">
+      <div class="fg" style="flex:1;min-width:200px">
+        <label>نوع المحفظة <span class="req">*</span></label>
+        <select id="نوع_المحفظة">
+          <option value="">اختر نوع المحفظة</option>
+          <option>بال باي</option>
+          <option>جوال باي</option>
+          <option>أخرى</option>
+        </select>
+        <span class="emsg" id="e_نوع_المحفظة">⚠ يرجى اختيار نوع المحفظة</span>
+      </div>
+      <div class="fg" style="flex:1;min-width:200px">
+        <label>رقم المحفظة <span class="req">*</span></label>
+        <input type="text" id="رقم_المحفظة" placeholder="مثال: 0591234567" maxlength="10" inputmode="tel">
+        <span class="emsg" id="e_رقم_المحفظة">⚠ يجب أن يكون 10 أرقام ويبدأ بـ 05</span>
+      </div>
+    </div>
+
+    <div class="fg">
+      <label>يمتلك حساب بنكي؟</label>
+      <div class="toggle-row">
+        <input type="checkbox" id="has_bank" onchange="toggleFin('bank')">
+        <span class="toggle-state" id="st_bank">لا</span>
+      </div>
+    </div>
+    <div class="fin-sub" id="sub_bank" style="grid-column:1/-1;gap:18px;flex-wrap:wrap">
+      <div class="fg" style="flex:1;min-width:200px">
+        <label>اسم البنك <span class="req">*</span></label>
+        <select id="اسم_البنك">
+          <option value="">اختر البنك</option>
+          <option>بنك فلسطين</option>
+          <option>البنك الإسلامي الفلسطيني</option>
+          <option>البنك الوطني</option>
+          <option>بنك القدس</option>
+          <option>البنك العربي</option>
+          <option>البنك الإسلامي العربي</option>
+          <option>بنك الاستثمار الفلسطيني</option>
+          <option>بنك القاهرة عمان</option>
+          <option>البنك التجاري الفلسطيني</option>
+          <option>بنك الأردن</option>
+          <option>أخرى</option>
+        </select>
+        <span class="emsg" id="e_اسم_البنك">⚠ يرجى اختيار البنك</span>
+      </div>
+      <div class="fg" style="flex:1;min-width:200px">
+        <label>رقم الجوال <span class="req">*</span></label>
+        <input type="text" id="رقم_الجوال_البنكي" placeholder="مثال: 0591234567" maxlength="10" inputmode="tel">
+        <span class="emsg" id="e_رقم_الجوال_البنكي">⚠ يجب أن يكون 10 أرقام ويبدأ بـ 05</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -368,7 +485,7 @@ input[readonly] { background:#e5e7eb; color:var(--gray); cursor:not-allowed; }
 
 <script>
 // ضع هنا رابط الـ Web App بعد نشر Code.gs
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwRHgXu-m3swpouYWlWgL82IcTDZHEcownb5XRNESRhGenZHFO7iAmf0KoatObGPBUP/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwL5U9ZRQ15PCZucnq0yqD1mNarfnrw50edp2pL_bSLB2dGqxzW-qweG1B-FhBIzPw/exec';
 
 const MAX_FILE_MB = 5;
 const NAME_IDS = ['الاسم_الأول','الاسم_الثاني','الاسم_الثالث','الاسم_الرابع'];
@@ -401,6 +518,16 @@ function validate() {
 
   ok &= setErr('رقم_الهوية', !/^\d{9}$/.test($('رقم_الهوية').value.trim()));
   ok &= setErr('رقم_الجوال', !/^05\d{8}$/.test($('رقم_الجوال').value.trim()));
+  ok &= setErr('اسم_المخيم', !$('اسم_المخيم').value);
+  ok &= setErr('التصنيف', !$('التصنيف').value);
+  if ($('has_wallet').checked) {
+    ok &= setErr('نوع_المحفظة', !$('نوع_المحفظة').value);
+    ok &= setErr('رقم_المحفظة', !/^05\d{8}$/.test($('رقم_المحفظة').value.trim()));
+  }
+  if ($('has_bank').checked) {
+    ok &= setErr('اسم_البنك', !$('اسم_البنك').value);
+    ok &= setErr('رقم_الجوال_البنكي', !/^05\d{8}$/.test($('رقم_الجوال_البنكي').value.trim()));
+  }
 
   Object.keys(FILES).forEach(k => {
     const missing = !fileData[k];
@@ -418,8 +545,22 @@ function validate() {
 }
 
 // حقول أرقام فقط
-['رقم_الهوية','رقم_الجوال']
+['رقم_الهوية','رقم_الجوال','رقم_المحفظة','رقم_الجوال_البنكي']
   .forEach(id => $(id).addEventListener('input', function(){ this.value = this.value.replace(/\D/g,''); }));
+
+const FIN = {
+  wallet: ['نوع_المحفظة','رقم_المحفظة'],
+  bank:   ['اسم_البنك','رقم_الجوال_البنكي']
+};
+
+function toggleFin(k) {
+  const on = $('has_' + k).checked;
+  $('sub_' + k).classList.toggle('show', on);
+  const st = $('st_' + k);
+  st.textContent = on ? 'نعم' : 'لا';
+  st.classList.toggle('on', on);
+  if (!on) FIN[k].forEach(id => { $(id).value = ''; setErr(id, false); });
+}
 
 function toast(msg, type) {
   const t = $('toast');
@@ -485,6 +626,14 @@ $('frm').addEventListener('submit', async function(e) {
   data['الاسم_الرباعي'] = NAME_IDS.map(id => data[id]).join(' ');
   data['رقم_الهوية']  = $('رقم_الهوية').value.trim();
   data['رقم_الجوال']  = $('رقم_الجوال').value.trim();
+  data['اسم_المخيم']  = $('اسم_المخيم').value;
+  data['التصنيف']     = $('التصنيف').value;
+  data['يمتلك_محفظة'] = $('has_wallet').checked ? 'نعم' : 'لا';
+  data['نوع_المحفظة'] = $('نوع_المحفظة').value;
+  data['رقم_المحفظة'] = $('رقم_المحفظة').value.trim();
+  data['يمتلك_حساب_بنكي']   = $('has_bank').checked ? 'نعم' : 'لا';
+  data['اسم_البنك']         = $('اسم_البنك').value;
+  data['رقم_الجوال_البنكي'] = $('رقم_الجوال_البنكي').value.trim();
   Object.keys(FILES).forEach(k => {
     const f = fileData[k];
     // في وضع التعديل: الملف الحالي يُرسل كرابط، والملف الجديد كـ base64
@@ -524,6 +673,7 @@ function resetForm() {
     const n = $('name_' + k);
     n.style.display = 'none'; n.textContent = '';
   });
+  ['wallet','bank'].forEach(toggleFin);
   editRow = 0;
   $('mode-banner').style.display = 'none';
   $('رقم_الهوية').readOnly = false;
@@ -586,6 +736,15 @@ function openForm(idVal, existing) {
     const d = existing.data;
     NAME_IDS.forEach(id => $(id).value = d[id] || '');
     $('رقم_الجوال').value = d['رقم_الجوال'] || '';
+    $('اسم_المخيم').value = d['اسم_المخيم'] || '';
+    $('التصنيف').value    = d['التصنيف'] || '';
+    $('has_wallet').checked = d['يمتلك_محفظة'] === 'نعم';
+    $('has_bank').checked   = d['يمتلك_حساب_بنكي'] === 'نعم';
+    toggleFin('wallet'); toggleFin('bank');
+    $('نوع_المحفظة').value = d['نوع_المحفظة'] || '';
+    $('رقم_المحفظة').value = d['رقم_المحفظة'] || '';
+    $('اسم_البنك').value   = d['اسم_البنك'] || '';
+    $('رقم_الجوال_البنكي').value = d['رقم_الجوال_البنكي'] || '';
     Object.keys(FILES).forEach(k => {
       const link = d[FILES[k].key];
       if (!link) return;
